@@ -113,6 +113,13 @@ public class ComputerProxy implements Runnable {
 					switch (aTask.getStatus()) {
 					case DECOMPOSE:
 						r = compObj.decompose(aTask);
+
+						/*
+						 * This task has generated child tasks, so a successor
+						 * has to be created. Each child task is also added to
+						 * the space.
+						 */
+
 						if (r.getSubTasks() != null) {
 							Successor s = new Successor(aTask, space,
 									aTask.getDecompositionSize());
@@ -121,37 +128,53 @@ public class ComputerProxy implements Runnable {
 							for (Task<?> task : r.getSubTasks()) {
 								space.put(task);
 							}
-						} else if (r.getValue() != null) {
-							if (aTask.getId().equals(aTask.getParentId())) {
-								space.putResult(r);
-								logger.info("Elapsed Time="
-										+ (r.getEndTime() - r.getStartTime()));
-
-							} else {
-
-								Closure parentClosure = space.getClosure(aTask
-										.getParentId());
-								parentClosure.put(r.getValue());
-								logger.info("Elapsed Time="
-										+ (r.getEndTime() - r.getStartTime()));
-
-							}
 						}
+						/*
+						 * If there are no child tasks, but the DECOMPOSE stage
+						 * has returned a value. It means that this is the base
+						 * case of recursion. Base cases can be produced only
+						 * during the COMPOSE stage if the entire recursion tree
+						 * has more than one node. They can be produced in the
+						 * DECOMPOSE stage when the entire recursion tree has
+						 * just one and only one node.
+						 */
+						else if (r.getValue() != null
+								&& (aTask.getId().equals(aTask.getParentId()))) {
+
+							space.putResult(r);
+							logger.info("Elapsed Time="
+									+ (r.getEndTime() - r.getStartTime()));
+						}
+						/*
+						 * If the DECOMPOSE stage has neither returned sub tasks
+						 * nor values, then the node must have been pruned in
+						 * branch-and-bound. So just pass on the null value to
+						 * the parent's closure.
+						 */
+						else {
+
+							Closure parentClosure = space.getClosure(aTask
+									.getParentId());
+							parentClosure.put(r.getValue());
+							logger.info("Elapsed Time="
+									+ (r.getEndTime() - r.getStartTime()));
+
+						}
+
 						aTask.setStatus(Task.Status.COMPOSE);
 						break;
 					case COMPOSE:
 						Closure taskClosure = space.getClosure(aTask.getId());
 						r = compObj.compose(aTask, taskClosure.getValues());
 
-						if (r.getValue() != null) {
-							if (aTask.getId().equals(aTask.getParentId())) {
-								space.putResult(r);
-							} else {
-								Closure parentClosure = space.getClosure(aTask
-										.getParentId());
-								parentClosure.put(r.getValue());
-							}
+						if (aTask.getId().equals(aTask.getParentId())) {
+							space.putResult(r);
+						} else {
+							Closure parentClosure = space.getClosure(aTask
+									.getParentId());
+							parentClosure.put(r.getValue());
 						}
+
 						space.removeSuccessor(aTask.getId());
 						logger.info("Elapsed Time="
 								+ (r.getEndTime() - r.getStartTime()));

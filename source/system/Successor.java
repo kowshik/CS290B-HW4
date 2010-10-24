@@ -145,8 +145,9 @@ public class Successor implements Runnable {
 		 * @param value
 		 */
 		public void put(Object value) {
-
-			values.add(value);
+			if (value != null) {
+				values.add(value);
+			}
 			joinCounter--;
 			if (this.joinCounter == 0) {
 				setStatus(Status.READY);

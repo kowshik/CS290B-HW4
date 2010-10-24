@@ -10,13 +10,13 @@ import java.io.Serializable;
  * @author Kowshik Prakasam
  * 
  */
-public class TspShared implements Shared<Integer>, Serializable {
+public class TspShared implements Shared<Double>, Serializable {
 
 	private static final long serialVersionUID = 165386141205567783L;
-	private Integer upperBound;
-	public static final Integer INFINITY = -1;
+	private double upperBound;
+	public static final Double INFINITY = -1.0d;
 
-	public TspShared(int distance) {
+	public TspShared(double distance) {
 		this.upperBound = distance;
 
 	}
@@ -30,8 +30,8 @@ public class TspShared implements Shared<Integer>, Serializable {
 	public boolean isNewerThan(Shared<?> newShared) {
 		if (newShared instanceof TspShared) {
 			TspShared newTspShared = (TspShared) newShared;
-			int newUpperBound = newTspShared.get();
-			int existingUpperBound = this.get();
+			double newUpperBound = newTspShared.get();
+			double existingUpperBound = this.get();
 			if (newUpperBound != INFINITY
 					&& (existingUpperBound == INFINITY || existingUpperBound > newUpperBound)) {
 				return false;
@@ -46,7 +46,7 @@ public class TspShared implements Shared<Integer>, Serializable {
 	 * @see system.Shared#get()
 	 */
 	@Override
-	public Integer get() {
+	public Double get() {
 		return this.upperBound;
 	}
 

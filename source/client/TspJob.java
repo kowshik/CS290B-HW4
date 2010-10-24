@@ -69,7 +69,7 @@ public class TspJob extends Job {
 	 */
 	public void executeJob(Client2Space space) throws RemoteException {
 		this.startTime = System.currentTimeMillis();
-		Shared<Integer> tspSharedObj=new TspShared(TspShared.INFINITY);
+		Shared<Double> tspSharedObj=new TspShared(TspShared.INFINITY);
 		Result<List<City>> r = (Result<List<City>>) space.compute(new TspTask(cities),tspSharedObj);
 		logger.info("Elapsed Time=" + (System.currentTimeMillis() - startTime));
 		this.minRoute = new int[r.getValue().size()];
