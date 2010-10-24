@@ -258,14 +258,13 @@ public class TspTask extends TaskBase<List<TspTask.City>> implements
 
 		/*
 		 * The parameter list may contain null values since a Node can die due
-		 * to pruningSo before type casting to List<List<City>>, do a null
+		 * to pruning. So before type casting to List<List<City>>, do a null
 		 * check.
 		 * 
-		 * If the list is null, then create an empty ResultImpl object and
-		 * return it.
+		 * If the list is null, then create a ResultImpl object and return it.
 		 * 
-		 * Else, create a ResultImpl object and return the route with
-		 * the minimum distance
+		 * Else, compute the route with the minimum distance among the list of
+		 * routes passed. Return this min-distance route in a ResultImpl object
 		 */
 
 		List<List<City>> minRoutes = (List<List<City>>) list;
