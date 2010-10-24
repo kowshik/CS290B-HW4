@@ -106,7 +106,7 @@ public abstract  class TaskBase<T> implements Task<T>, Serializable {
 
 
 	@Override
-	public Object getShared() {
+	public Object getShared() throws RemoteException {
 		return computer.getShared();
 	}
 

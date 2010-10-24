@@ -76,14 +76,13 @@ public class ComputerProxy implements Runnable {
 		t.start();
 
 	}
-	
-	
 
 	public String getId() {
 		return id;
 	}
 
-	public synchronized void setShared(Shared<?> newShared) throws RemoteException{
+	public synchronized void setShared(Shared<?> newShared)
+			throws RemoteException {
 		compObj.setShared(newShared);
 	}
 
@@ -104,76 +103,79 @@ public class ComputerProxy implements Runnable {
 	 */
 	public void run() {
 		boolean isAlive = true;
-		while (isAlive && !tasks.isEmpty()) {
-			Task<?> aTask = null;
-			try {
+		while (isAlive) {
+			if (!tasks.isEmpty()) {
 
-				aTask = tasks.take();
-				Result<?> r = null;
-				switch (aTask.getStatus()) {
-				case DECOMPOSE:
-					r = compObj.decompose(aTask);
-					if (r.getSubTasks() != null) {
-						Successor s = new Successor(aTask, space,
-								aTask.getDecompositionSize());
-						space.addSuccessor(s);
-
-						for (Task<?> task : r.getSubTasks()) {
-							space.put(task);
-						}
-					} else if (r.getValue() != null) {
-						if (aTask.getId().equals(aTask.getParentId())) {
-							space.putResult(r);
-							logger.info("Elapsed Time="
-									+ (r.getEndTime() - r.getStartTime()));
-
-						} else {
-
-							Closure parentClosure = space.getClosure(aTask
-									.getParentId());
-							parentClosure.put(r.getValue());
-							logger.info("Elapsed Time="
-									+ (r.getEndTime() - r.getStartTime()));
-
-						}
-					}
-					aTask.setStatus(Task.Status.COMPOSE);
-					break;
-				case COMPOSE:
-					Closure taskClosure = space.getClosure(aTask.getId());
-					r = compObj.compose(aTask, taskClosure.getValues());
-
-					if (r.getValue() != null) {
-						if (aTask.getId().equals(aTask.getParentId())) {
-							space.putResult(r);
-						} else {
-							Closure parentClosure = space.getClosure(aTask
-									.getParentId());
-							parentClosure.put(r.getValue());
-						}
-					}
-					space.removeSuccessor(aTask.getId());
-					logger.info("Elapsed Time="
-							+ (r.getEndTime() - r.getStartTime()));
-					break;
-				}
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			} catch (RemoteException e) {
-				System.err
-						.println("ComputerProxy : RemoteException occured in thread : "
-								+ this.t.getName());
-				System.err.println("Reassigning task to task queue");
+				Task<?> aTask = null;
 				try {
-					space.put(aTask);
-				} catch (RemoteException ex) {
-					System.err.println("Unable to reassign task to task queue");
-					ex.printStackTrace();
-				}
-				isAlive = false;
-				space.removeProxy(this);
-			}
+					aTask = tasks.take();
+					Result<?> r = null;
+					switch (aTask.getStatus()) {
+					case DECOMPOSE:
+						r = compObj.decompose(aTask);
+						if (r.getSubTasks() != null) {
+							Successor s = new Successor(aTask, space,
+									aTask.getDecompositionSize());
+							space.addSuccessor(s);
 
+							for (Task<?> task : r.getSubTasks()) {
+								space.put(task);
+							}
+						} else if (r.getValue() != null) {
+							if (aTask.getId().equals(aTask.getParentId())) {
+								space.putResult(r);
+								logger.info("Elapsed Time="
+										+ (r.getEndTime() - r.getStartTime()));
+
+							} else {
+
+								Closure parentClosure = space.getClosure(aTask
+										.getParentId());
+								parentClosure.put(r.getValue());
+								logger.info("Elapsed Time="
+										+ (r.getEndTime() - r.getStartTime()));
+
+							}
+						}
+						aTask.setStatus(Task.Status.COMPOSE);
+						break;
+					case COMPOSE:
+						Closure taskClosure = space.getClosure(aTask.getId());
+						r = compObj.compose(aTask, taskClosure.getValues());
+
+						if (r.getValue() != null) {
+							if (aTask.getId().equals(aTask.getParentId())) {
+								space.putResult(r);
+							} else {
+								Closure parentClosure = space.getClosure(aTask
+										.getParentId());
+								parentClosure.put(r.getValue());
+							}
+						}
+						space.removeSuccessor(aTask.getId());
+						logger.info("Elapsed Time="
+								+ (r.getEndTime() - r.getStartTime()));
+						break;
+					}
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				} catch (RemoteException e) {
+					System.err
+							.println("ComputerProxy : RemoteException occured in thread : "
+									+ this.t.getName());
+					System.err.println("Reassigning task to task queue");
+					try {
+						space.put(aTask);
+					} catch (RemoteException ex) {
+						System.err
+								.println("Unable to reassign task to task queue");
+						ex.printStackTrace();
+					}
+					isAlive = false;
+					space.removeProxy(this);
+				}
+
+			}
 		}
 
 	}

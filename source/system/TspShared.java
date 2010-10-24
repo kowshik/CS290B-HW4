@@ -3,13 +3,16 @@
  */
 package system;
 
+import java.io.Serializable;
+
 /**
  * @author Manasa Chandrasekhar
  * @author Kowshik Prakasam
  * 
  */
-public class TspShared implements Shared<Integer> {
+public class TspShared implements Shared<Integer>, Serializable {
 
+	private static final long serialVersionUID = 165386141205567783L;
 	private Integer upperBound;
 	public static final Integer INFINITY = -1;
 

@@ -126,7 +126,7 @@ public interface Task<T> {
 	 */
 	List<String> getChildIds();
 
-	Object getShared();
+	Object getShared() throws RemoteException;
 
 	void setShared(Shared<?> shared) throws RemoteException;
 
