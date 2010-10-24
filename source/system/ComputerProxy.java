@@ -130,13 +130,16 @@ public class ComputerProxy implements Runnable {
 							}
 						}
 						/*
-						 * If there are no child tasks, but the DECOMPOSE stage
-						 * has returned a value. It means that this is the base
-						 * case of recursion. Base cases can be produced only
-						 * during the COMPOSE stage if the entire recursion tree
-						 * has more than one node. They can be produced in the
+						 * There are no child tasks, but the DECOMPOSE stage has
+						 * returned a value. It means that this is the base case
+						 * of recursion. Base cases can be produced only during
+						 * the COMPOSE stage if the entire recursion tree has
+						 * more than one node. They can also be produced in the
 						 * DECOMPOSE stage when the entire recursion tree has
-						 * just one and only one node.
+						 * just one and only one node. For example, consider a
+						 * case where the Client passes the Fibonacci task :
+						 * F(0) or F(1) where the entire recursion tree has only
+						 * one node.
 						 */
 						else if (r.getValue() != null
 								&& (aTask.getId().equals(aTask.getParentId()))) {
@@ -167,14 +170,30 @@ public class ComputerProxy implements Runnable {
 						Closure taskClosure = space.getClosure(aTask.getId());
 						r = compObj.compose(aTask, taskClosure.getValues());
 
+						/*
+						 * When the parent ID is equal to the task's ID, then it
+						 * represents the very first node of the recursion tree.
+						 * It also means that the task has completed execution,
+						 * and so the result is written into space.
+						 */
 						if (aTask.getId().equals(aTask.getParentId())) {
 							space.putResult(r);
-						} else {
+						}
+						/*
+						 * Otherwise, this is just yet another COMPOSE stage in
+						 * the recursion. So, get the closure of the parent
+						 * thread from the space and write the result to it.
+						 */
+						else {
 							Closure parentClosure = space.getClosure(aTask
 									.getParentId());
 							parentClosure.put(r.getValue());
 						}
 
+						/*
+						 * Remove the successor thread that triggered this
+						 * COMPOSE stage as its life is over.
+						 */
 						space.removeSuccessor(aTask.getId());
 						logger.info("Elapsed Time="
 								+ (r.getEndTime() - r.getStartTime()));
