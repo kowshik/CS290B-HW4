@@ -55,8 +55,7 @@ public interface Computer extends Remote {
 
 	void setShared(Shared<?> proposedShared) throws RemoteException;
 
-	Shared<?> getShared() throws RemoteException;
-	
+	Shared<?> getShared()  throws RemoteException;
 	String getId() throws RemoteException;
 	void setId(String id) throws RemoteException;
 

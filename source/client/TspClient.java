@@ -31,15 +31,19 @@ import api.Client2Space;
  */
 public class TspClient {
 
-	private static final String LOG_FILE="/cs/student/kowshik/tsp_client.log";
-	
+	private static final String LOG_FILE = "/cs/student/kowshik/tsp_client.log";
+
 	// Size of JFrame displayed on the screen
 	private static int N_PIXELS = 500;
 
 	// Input for the Travelling Salesman Problem
+	/*
+	 * private static double[][] CITIES = { { 1, 1 }, { 8, 1 }, { 8, 8 }, { 1, 8
+	 * }, { 2, 2 }, { 7, 2 }, { 7, 7 }, { 2, 7 }, { 3, 3 }, { 6, 3 }, { 6, 6 },
+	 * { 3, 6 } };
+	 */
 	private static double[][] CITIES = { { 1, 1 }, { 8, 1 }, { 8, 8 },
-			{ 1, 8 }, { 2, 2 }, { 7, 2 }, { 7, 7 }, { 2, 7 }, { 3, 3 },
-			{ 6, 3 }, { 6, 6 }, { 3, 6 } };
+			{ 1, 8 }, { 2, 2 }, { 7, 2 }, { 7, 7 }, { 2, 7 } };
 
 	public static void main(String[] args) throws Exception {
 
@@ -53,26 +57,24 @@ public class TspClient {
 
 			Logger logger = Logger.getLogger("TspClient");
 			logger.setUseParentHandlers(false);
-			Handler fh = new FileHandler(
-					LOG_FILE);
+			Handler fh = new FileHandler(LOG_FILE);
 			fh.setFormatter(new SimpleFormatter());
 			logger.addHandler(fh);
-			long startTime=System.currentTimeMillis();
-			Client2Space space = (Client2Space) Naming.lookup("//" + computeSpaceServer + "/"
-					+ Client2Space.SERVICE_NAME);
-			
+			long startTime = System.currentTimeMillis();
+			Client2Space space = (Client2Space) Naming.lookup("//"
+					+ computeSpaceServer + "/" + Client2Space.SERVICE_NAME);
+
 			// ------Generate tasks and execute them remotely
 			job.executeJob(space);
 			int[] tour = job.getAllResults();
 			// -------------------------------------
-			
-			
-			String tourStr="[ "+tour[0];
-			for(int index=1;index<tour.length;index++){
-				tourStr+=", "+tour[index];
+
+			String tourStr = "[ " + tour[0];
+			for (int index = 1; index < tour.length; index++) {
+				tourStr += ", " + tour[index];
 			}
-			tourStr+=" ]";
-			System.out.println("\n\nMinimum cost cycle : "+tourStr+"\n");
+			tourStr += " ]";
+			System.out.println("\n\nMinimum cost cycle : " + tourStr + "\n");
 			JLabel euclideanTspLabel = displayEuclideanTspTaskReturnValue(
 					CITIES, tour);
 
@@ -85,8 +87,9 @@ public class TspClient {
 					.add(new JScrollPane(euclideanTspLabel), BorderLayout.EAST);
 			frame.pack();
 			frame.setVisible(true);
-			logger.info("Elapsed Time="+(System.currentTimeMillis()-startTime));
-			
+			logger.info("Elapsed Time="
+					+ (System.currentTimeMillis() - startTime));
+
 		} catch (RemoteException e) {
 			System.err.println("MandelbrotSetClient exception : ");
 			e.printStackTrace();
@@ -168,4 +171,3 @@ public class TspClient {
 		return new JLabel(imageIcon);
 	}
 }
-

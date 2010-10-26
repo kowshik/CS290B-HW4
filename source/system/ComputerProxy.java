@@ -56,7 +56,7 @@ public class ComputerProxy implements Runnable {
 		this.compObj = compObj;
 		this.space = space;
 		this.tasks = new LinkedBlockingQueue<Task<?>>();
-		this.id = new Random().nextInt() + "";
+		this.id = getRandomProxyName();
 		compObj.setId(id);
 		this.logger = Logger.getLogger("ComputerProxy" + id);
 		this.logger.setUseParentHandlers(false);
@@ -71,7 +71,7 @@ public class ComputerProxy implements Runnable {
 		}
 		this.handler.setFormatter(new SimpleFormatter());
 		logger.addHandler(handler);
-		t = new Thread(this, "ComputerProxy " + getRandomProxyName());
+		t = new Thread(this, "ComputerProxy " + this.id);
 
 		t.start();
 
@@ -109,10 +109,11 @@ public class ComputerProxy implements Runnable {
 				Task<?> aTask = null;
 				try {
 					aTask = tasks.take();
-					System.out.println("Taken task :" + aTask.getId());
+					
 					Result<?> r = null;
 					switch (aTask.getStatus()) {
 					case DECOMPOSE:
+						System.out.println("Processing DECOMPOSE task :" + aTask.getId());
 						r = compObj.decompose(aTask);
 
 						/*
@@ -168,6 +169,7 @@ public class ComputerProxy implements Runnable {
 						aTask.setStatus(Task.Status.COMPOSE);
 						break;
 					case COMPOSE:
+						System.out.println("Processing COMPOSE task :" + aTask.getId());
 						Closure taskClosure = space.getClosure(aTask.getId());
 						r = compObj.compose(aTask, taskClosure.getValues());
 

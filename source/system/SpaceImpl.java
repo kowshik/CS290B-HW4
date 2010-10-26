@@ -216,6 +216,7 @@ public class SpaceImpl extends UnicastRemoteObject implements Client2Space,
 		Shared<?> newShared = broadcast.getShared();
 		String computerId = broadcast.getComputerId();
 		if (!shared.isNewerThan(newShared)) {
+			System.out.println("Got new upper bound "+newShared.get()+" from : "+computerId);
 			this.setShared(newShared);
 			for (ComputerProxy cp : proxies) {
 				if (!cp.getId().equals(computerId)) {

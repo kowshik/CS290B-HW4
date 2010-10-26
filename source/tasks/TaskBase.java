@@ -121,4 +121,9 @@ public abstract  class TaskBase<T> implements Task<T>, Serializable {
 	public void setComputer(Computer computer) {
 		this.computer=computer;
 	}
+	
+	@Override
+	public Computer getComputer() {
+		return this.computer;
+	}
 }

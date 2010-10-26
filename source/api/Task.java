@@ -131,4 +131,5 @@ public interface Task<T> {
 	void setShared(Shared<?> shared) throws RemoteException;
 
 	void setComputer(Computer computer);
+	Computer getComputer();
 }

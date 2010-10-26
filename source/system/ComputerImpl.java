@@ -100,6 +100,7 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 
 		if (proposedShared.isNewerThan(shared)) {
 			shared = proposedShared;
+			System.out.println("Attempting to broadcast : "+this.getId());
 			space.broadcast(new Broadcast(this.shared, this.getId()));
 		}
 	}
@@ -119,6 +120,7 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 	 */
 	@Override
 	public String getId() {
+		
 		return this.id;
 	}
 
@@ -127,6 +129,7 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 	 */
 	@Override
 	public void setId(String id) {
+		System.out.println("Got ID : "+id);
 		this.id=id;
 	}
 
