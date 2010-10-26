@@ -228,7 +228,7 @@ public class SpaceImpl extends UnicastRemoteObject implements Client2Space,
 	/**
 	 * @param newShared
 	 */
-	private synchronized void setShared(Shared<?> newShared) {
+	public synchronized void setShared(Shared<?> newShared) {
 		this.shared=newShared;
 	}
 

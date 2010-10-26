@@ -2,13 +2,16 @@ package tasks;
 
 import java.awt.geom.Point2D;
 import java.io.Serializable;
+import java.rmi.RemoteException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 
 import system.ResultImpl;
+import system.TspShared;
 import api.Result;
 import api.Task;
+import system.Shared;
 
 /**
  * Computes an optimal solution for the <a
@@ -79,8 +82,8 @@ public class TspTask extends TaskBase<List<TspTask.City>> implements
 	private static final long serialVersionUID = 3276207466199157936L;
 	private List<City> citiesList;
 	private City startCity;
-	private static final int NUMBER_OF_LEVELS = 2;
 	private int numberOfChildren;
+	private double lowerBound;
 
 	/**
 	 * @param cities
@@ -99,15 +102,17 @@ public class TspTask extends TaskBase<List<TspTask.City>> implements
 		}
 		this.startCity = new City(0, cities[0][0], cities[0][1]);
 		this.numberOfChildren = citiesList.size() - 1;
+		this.lowerBound=0;
 	}
 
 	private TspTask(City startCity, List<City> citiesList, String taskId,
-			String parentId, Task.Status s) {
+			String parentId, Task.Status s, double lowerBound) {
 		super(taskId, parentId, Task.Status.DECOMPOSE, System
 				.currentTimeMillis());
 		this.citiesList = citiesList;
 		this.startCity = startCity;
 		this.numberOfChildren = citiesList.size();
+		this.lowerBound= lowerBound;
 	}
 
 	@Override
@@ -127,10 +132,35 @@ public class TspTask extends TaskBase<List<TspTask.City>> implements
 		 * 
 		 * Else, continue with TSP decomposition.
 		 */
-
-		int level = this.getTaskLevel();
-		if (level < NUMBER_OF_LEVELS) {
-
+		System.out.println("In decompose");
+		
+		Shared<?> compShared = null;
+		try{
+			
+			compShared = (Shared<Double>) this.computer.getShared();
+			}
+			catch(RemoteException e){
+				System.err.println("Exception in reading the shared object from task");
+			}
+			Double newLowerBound = this.lowerBound;
+			double shortestLength = Double.MAX_VALUE;
+		for (int i=0; i< citiesList.size(); i++){
+			if(!citiesList.get(i).equals(this.startCity)){
+			double thisLength= findLength(this.startCity, citiesList.get(i));
+		//	System.out.println("This length ="+thisLength);
+			if(thisLength < shortestLength){
+				shortestLength = thisLength;
+			}
+			}	
+		}
+		newLowerBound = newLowerBound + shortestLength;
+		System.out.println("Shortest Length = "+shortestLength);
+		System.out.println("new Lower Bound= "+newLowerBound);
+		
+		if(compShared.get().equals(TspShared.INFINITY) || newLowerBound < (Double) compShared.get() ) {
+	//	int level = this.getTaskLevel();
+	//	if (level < NUMBER_OF_LEVELS) {
+			//System.out.println("Inside ");
 			List<Task<List<City>>> subTasks = new Vector<Task<List<City>>>();
 			List<String> childIds = this.getChildIds();
 			int childIndex = 0;
@@ -147,17 +177,17 @@ public class TspTask extends TaskBase<List<TspTask.City>> implements
 						}
 					}
 					TspTask childTask = new TspTask(newStartCity, childCities,
-							childId, this.getId(), Task.Status.DECOMPOSE);
+							childId, this.getId(), Task.Status.DECOMPOSE, newLowerBound);
 					subTasks.add(childTask);
 				}
 			}
 			return new ResultImpl<List<City>>(this.getStartTime(),
 					System.currentTimeMillis(), subTasks);
 		}
-		List<City> minRoute = findMinRoute();
-
-		return new ResultImpl<List<City>>(this.getStartTime(),
-				System.currentTimeMillis(), minRoute);
+		//List<City> minRoute = findMinRoute();
+		System.out.println("This branch pruned :"+this.getId());
+		return new ResultImpl<List<City>>(null, this.getStartTime(),
+				System.currentTimeMillis());
 
 	}
 
@@ -266,7 +296,9 @@ public class TspTask extends TaskBase<List<TspTask.City>> implements
 		 * Else, compute the route with the minimum distance among the list of
 		 * routes passed. Return this min-distance route in a ResultImpl object
 		 */
-
+		
+		System.out.println("In Compose");
+		if(list!=null) {
 		List<List<City>> minRoutes = (List<List<City>>) list;
 		List<City> chosenMinRoute = null;
 		double minLength = Double.MAX_VALUE;
@@ -288,8 +320,14 @@ public class TspTask extends TaskBase<List<TspTask.City>> implements
 		}
 
 		chosenMinRoute.add(0, this.startCity);
-		return new ResultImpl<List<City>>(this.getStartTime(),
-				System.currentTimeMillis(), chosenMinRoute);
+		return new ResultImpl<List<City>>(chosenMinRoute, this.getStartTime(),
+				System.currentTimeMillis());
+	}
+		else
+		{
+			return new ResultImpl<List<City>>(null, this.getStartTime(),
+					System.currentTimeMillis());
+		}
 	}
 
 	private double findRouteLength(List<City> aListOfCities) {

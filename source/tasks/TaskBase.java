@@ -15,10 +15,6 @@ import api.Task;
  * @author Manasa Chandrasekhar
  * @author Kowshik Prakasam
  */
-/**
- * 
- * 
- */
 public abstract  class TaskBase<T> implements Task<T>, Serializable {
 
 	private static final long serialVersionUID = -139155829609653917L;
@@ -27,7 +23,7 @@ public abstract  class TaskBase<T> implements Task<T>, Serializable {
 	private String parentId;
 	private String taskId;
 	private long startTime;
-	private Computer computer;
+	protected Computer computer;
 
 	protected static final String ID_DELIM = "-";
 	protected static final int DEFAULT_TASK_LEVEL = 0;

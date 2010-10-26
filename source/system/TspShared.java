@@ -49,5 +49,12 @@ public class TspShared implements Shared<Double>, Serializable {
 	public Double get() {
 		return this.upperBound;
 	}
+	
+	/*public boolean compare(double lowerBound){
+		if(this.upperBound == INFINITY || lowerBound < this.upperBound)
+			return true;
+		else
+			return false;
+	}*/
 
 }

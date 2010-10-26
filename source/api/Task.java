@@ -45,7 +45,7 @@ public interface Task<T> {
 	 *         that have been created during this decomposition stage, or value
 	 *         of a base case in the underlying recursion
 	 */
-	Result<T> decompose();
+	Result<?> decompose();
 
 	/**
 	 * This method models the 'Conquer' phase of the <a
@@ -65,7 +65,7 @@ public interface Task<T> {
 	 *            task
 	 */
 
-	Result<T> compose(List<?> list);
+	Result<?> compose(List<?> list);
 
 	/**
 	 * @return Returns the status of this task

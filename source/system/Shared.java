@@ -23,4 +23,11 @@ public interface Shared<T> {
 	 * @return Returns the object that is being shared
 	 */
 	T get();
+	/**
+	 * 
+	 * @param lowerBound is the value of the lowerBound calculated by each task
+	 * @return true if the lowerbound value is lesser than the Upperbound stored by the 
+	 * shared object else returns false.
+	 */
+	//public boolean compare(double lowerBound);
 }

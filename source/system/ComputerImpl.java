@@ -10,6 +10,7 @@ import java.util.List;
 import api.Result;
 import api.Task;
 
+
 /**
  * Defines the remote server which is accessed by the client for execution of
  * objects of type {@link api.Task Task}
@@ -33,6 +34,7 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 	public ComputerImpl(Computer2Space space) throws RemoteException {
 		super();
 		this.space=space;
+		this.shared = new TspShared(TspShared.INFINITY);
 	}
 
 	@Override
@@ -71,14 +73,14 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 			
 			System.out.println("Computer ready");
 		} catch (RemoteException e) {
-			System.err.println("ComputerImpl exception : ");
+			System.err.println("ComputerImpl Remote exception : ");
 			e.printStackTrace();
 
 		} catch (MalformedURLException e) {
-			System.err.println("ComputerImpl exception : ");
+			System.err.println("ComputerImpl Malformed exception : ");
 			e.printStackTrace();
 		} catch (NotBoundException e) {
-			System.err.println("ComputerImpl exception : ");
+			System.err.println("ComputerImpl NotBound exception : ");
 			e.printStackTrace();
 		}
 	}

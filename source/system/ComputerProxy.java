@@ -109,6 +109,7 @@ public class ComputerProxy implements Runnable {
 				Task<?> aTask = null;
 				try {
 					aTask = tasks.take();
+					System.out.println("Taken task :" + aTask.getId());
 					Result<?> r = null;
 					switch (aTask.getStatus()) {
 					case DECOMPOSE:
@@ -178,6 +179,14 @@ public class ComputerProxy implements Runnable {
 						 */
 						if (aTask.getId().equals(aTask.getParentId())) {
 							space.putResult(r);
+							Shared<?> proposedShared = compObj.getShared();
+							if((Double) compObj.getShared().get() < (Double) (space.getShared().get())){
+								space.setShared(proposedShared);
+								Broadcast newBroadcast = new Broadcast(proposedShared,compObj.getId());
+								space.broadcast(newBroadcast);
+								System.out.println("Space shared Object value:" +space.getShared().get());
+							}
+							
 						}
 						/*
 						 * Otherwise, this is just yet another COMPOSE stage in
