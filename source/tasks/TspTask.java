@@ -81,6 +81,7 @@ public class TspTask extends TaskBase<List<TspTask.City>> implements
 
 	private static final long serialVersionUID = 3276207466199157936L;
 	private List<City> citiesList;
+	private List<City> currentRoute;
 	private City startCity;
 	private int numberOfChildren;
 	private double lowerBound;
@@ -101,19 +102,27 @@ public class TspTask extends TaskBase<List<TspTask.City>> implements
 					cities[cityIndex][1]));
 		}
 		this.startCity = new City(0, cities[0][0], cities[0][1]);
+		this.currentRoute = new Vector<City>();
+		this.currentRoute.add(this.startCity);
 		this.numberOfChildren = citiesList.size() - 1;
 		this.lowerBound = 0.0f;
 
 	}
 
-	private TspTask(City startCity, City parentCity, List<City> citiesList,
+	private TspTask(City startCity, List<City> route, List<City> citiesList,
 			String taskId, String parentId, Task.Status s, double lowerBound) {
 		super(taskId, parentId, Task.Status.DECOMPOSE, System
 				.currentTimeMillis());
 		this.citiesList = citiesList;
 		this.startCity = startCity;
+		this.currentRoute = new Vector<City>(route);
+		this.currentRoute.add(this.startCity);
 		this.numberOfChildren = citiesList.size();
-		this.lowerBound += lowerBound + findLength(parentCity, startCity);
+		this.lowerBound = computeLowerBound();
+	}
+
+	public double computeLowerBound() {
+		return findRouteLength(this.currentRoute);
 	}
 
 	@Override
@@ -136,7 +145,7 @@ public class TspTask extends TaskBase<List<TspTask.City>> implements
 
 		try {
 			TspShared compShared = (TspShared) this.computer.getShared();
-		
+
 			if (compShared.get().equals(TspShared.INFINITY)
 					|| lowerBound <= compShared.get()) {
 
@@ -146,8 +155,8 @@ public class TspTask extends TaskBase<List<TspTask.City>> implements
 					this.getComputer().broadcast(newShared);
 					List<City> startCityOnly = new Vector<City>();
 					startCityOnly.add(this.startCity);
-					return new ResultImpl<List<City>>(startCityOnly, this.getStartTime(),
-							System.currentTimeMillis());
+					return new ResultImpl<List<City>>(startCityOnly,
+							this.getStartTime(), System.currentTimeMillis());
 				}
 				List<Task<List<City>>> subTasks = new Vector<Task<List<City>>>();
 				List<String> childIds = this.getChildIds();
@@ -165,7 +174,7 @@ public class TspTask extends TaskBase<List<TspTask.City>> implements
 							}
 						}
 						TspTask childTask = new TspTask(newStartCity,
-								this.startCity, childCities, childId,
+								this.currentRoute, childCities, childId,
 								this.getId(), Task.Status.DECOMPOSE, lowerBound);
 						subTasks.add(childTask);
 					}
