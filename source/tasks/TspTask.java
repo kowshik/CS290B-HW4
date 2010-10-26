@@ -4,6 +4,7 @@ import java.awt.geom.Point2D;
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
 
@@ -122,7 +123,45 @@ public class TspTask extends TaskBase<List<TspTask.City>> implements
 	}
 
 	public double computeLowerBound() {
-		return findRouteLength(this.currentRoute);
+		List<City> fullRoute =  new Vector<City>(this.currentRoute); 
+		
+			
+		//Collections.copy(fullRoute, this.currentRoute);
+		
+			
+		List<City> partialcitiesList = new Vector<City>(this.citiesList); 
+		//	Collections.copy(partialcitiesList, this.citiesList);
+		
+			
+	//	double currentRouteLength = findRouteLength(this.currentRoute);
+		for (int i=0; i< citiesList.size(); i++){
+			if(!partialcitiesList.isEmpty()){
+			City newStartCity = fullRoute.get(fullRoute.size() -1);
+			//partialcitiesList.remove(0);
+			computeShortestPath(newStartCity,partialcitiesList, fullRoute);	
+			}
+			
+		}
+		double lowerBound = findRouteLength(fullRoute);
+		lowerBound = lowerBound + findLength(fullRoute.get(fullRoute.size() -1), fullRoute.get(0));
+			return lowerBound;
+		
+		}
+	
+
+	private void computeShortestPath(City startCity, List<City> partialcitiesList, List<City> fullRoute){
+	  double shortestLength = Double.MAX_VALUE;
+	  int shortestIndex = -1;
+	  if(!partialcitiesList.isEmpty()){
+		for(int i=0; i< partialcitiesList.size();i++){
+			double thisLength = findLength(startCity, partialcitiesList.get(i));
+	    if(thisLength < shortestLength)
+	    	shortestIndex = i;
+	    	shortestLength = thisLength;
+	    }
+		   fullRoute.add(partialcitiesList.get(shortestIndex));
+		   partialcitiesList.remove(shortestIndex);
+	  }
 	}
 
 	@Override

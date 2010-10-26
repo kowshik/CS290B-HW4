@@ -43,7 +43,7 @@ public class TspClient {
 	 * { 3, 6 } };
 	 */
 	private static double[][] CITIES = { { 1, 1 }, { 8, 1 }, { 8, 8 },
-			{ 1, 8 }, { 2, 2 }, { 7, 2 }};
+			{ 1, 8 },{ 2, 2 }, { 7, 2 }, { 7, 7 }, { 2, 7 }};
 
 	public static void main(String[] args) throws Exception {
 
