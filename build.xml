@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 
-
-
-
 <project name="CS290B-HW4" basedir=".">
 	<description>
         Builds, tests, and runs the project CS-290B-HW2.
