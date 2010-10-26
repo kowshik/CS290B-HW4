@@ -190,6 +190,7 @@ public class TspTask extends TaskBase<List<TspTask.City>> implements
 
 				// broadcast new upper bound
 				if (citiesList.size() == 0) {
+					this.lowerBound+=findLength(this.startCity, this.currentRoute.get(0));
 					Shared<Double> newShared = new TspShared(this.lowerBound);
 					this.getComputer().broadcast(newShared);
 					List<City> startCityOnly = new Vector<City>();
