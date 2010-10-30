@@ -12,9 +12,76 @@ import system.Shared;
  * conquer algorithm</a>. Every task in the Divide and Conquer tree is
  * identified by an ID. The parent of each task is identified by a parentID.
  * 
+ * Any client wanting to run a task using the divide and conquer paradigm in the
+ * compute space should implement this interface. Application logic related to
+ * the 'Divide' phase is represented by the {@link #decompose() decompose()}
+ * method. Application logic related to the 'Conquer' phase is represented by
+ * the {@link #compose(List list) compose(List list)} method.
+ * 
+ * For example, let us consider the implementation of a Fibonacci Series Task
+ * that returns the Nth fibonacci number.
+ * 
+ * In mathematical terms, the sequence F(n) : of Fibonacci numbers is defined by
+ * the recurrence relation :
+ * 
+ * <pre>
+ * F(n) = F(n - 1) + F(n - 2)
+ * </pre>
+ * 
+ * with seed values
+ * 
+ * <pre>
+ * F(0) = 0 and F(1) = 1
+ * </pre>
+ * 
+ * class FibonacciTask implementing this interface is expected to contain the
+ * following code :
+ * 
+ * 
+ * <pre>
+ * class FibonacciTask implements Task&lt;Integer&gt; {
+ * 	public Result&lt;Integer&gt; decompose() {
+ * 		Result&lt;Integer&gt; r = new ResultImpl&lt;Integer&gt;();
+ * 		if (n &lt; 2) {
+ * 			// Base case of recursion i.e. F(0) and F(1)
+ * 			r.setValue(n);
+ * 		} else {
+ * 			// Dividing F(n) into F(n-1) and F(n-2)
+ * 			List&lt;Task&lt;Integer&gt;&gt; subTasks = new Vector&lt;Task&lt;Integer&gt;&gt;();
+ * 
+ * 			// Creating new subtasks
+ * 			subTasks.add(new FibonacciTask(n - 1, Task.Status.DECOMPOSE, id,
+ * 					this.getId()));
+ * 			subTasks.add(new FibonacciTask(n - 2, Task.Status.DECOMPOSE, id,
+ * 					this.getId()));
+ * 
+ * 			// Adding the subtasks to a result object and returning it
+ * 			r.setSubTasks(subTasks);
+ * 		}
+ * 		return r;
+ * 	}
+ * 
+ * 	public Result&lt;Integer&gt; compose(List&lt;?&gt; list) {
+ * 		int sum = 0;
+ * 		for (Integer value : (List&lt;Integer&gt;) list) {
+ * 			// Aggregating values produced by base case of recursion (see above)
+ * 			sum += value;
+ * 		}
+ * 		Result&lt;Integer&gt; r = new ResultImpl&lt;Integer&gt;();
+ * 		r.setValue(sum);
+ * 		return r;
+ * 	}
+ * }
+ * </pre>
+ * 
+ * 
+ * 
  * @author Manasa Chandrasekhar
  * @author Kowshik Prakasam
  */
+
+
+
 public interface Task<T> {
 
 	/**
@@ -126,10 +193,45 @@ public interface Task<T> {
 	 */
 	List<String> getChildIds();
 
+	/**
+	 * This method in turn calls the {@link system.Computer.getShared()
+	 * system.Computer.getShared()} method to get the shared object stored by each
+	 * computer
+	 * 
+	 * @return The copy of the shared object that is present in the computer
+	 *         executing the task
+	 * @throws RemoteException
+	 *             If the computer throws a remote exception while reading its
+	 *             shared object, then this method in turn throws the exception
+	 */
 	Object getShared() throws RemoteException;
 
+	/**
+	 * This method in turn calls the ({@link system.Computer.broadcast(Shared)
+	 * system.Computer.broadcast(Shared)} ) to set the value of the new shared
+	 * object in the compute pace if its better than the current value.
+	 * 
+	 * @param shared
+	 *            An instance of the shared object whose value has to be set in
+	 *            the shared object in Space
+	 * @throws RemoteException
+	 *             If the computer throws a remote exception while writing to
+	 *             its shared object, then this method in turn throws the
+	 *             exception
+	 */
 	void setShared(Shared<?> shared) throws RemoteException;
 
+	/**
+	 * Sets the remote computer where the task will be executing at runtime
+	 * 
+	 * @param computer
+	 *            Computer where the task will be executed
+	 */
 	void setComputer(Computer computer);
+
+	/**
+	 * 
+	 * @return Computer where the task will be executed at runtime
+	 */
 	Computer getComputer();
 }

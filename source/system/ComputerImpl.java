@@ -46,14 +46,52 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 		return t.decompose();
 	}
 
-	/**
-	 * @param shared
-	 */
-	public synchronized void setShared(Shared<?> shared) {
+	@Override
+	public void setShared(Shared<?> shared) {
 		this.shared=shared;
 		
 	}
 
+	
+	@Override
+	/**
+	 * @see api.Task Task
+	 */
+	public Result<?> compose(Task<?> t, List<?> list) throws RemoteException {
+		return t.compose(list);
+	}
+
+	@Override
+	public synchronized boolean broadcast(Shared<?> proposedShared) throws RemoteException{
+
+		if (proposedShared.isNewerThan(shared)) {
+			shared = proposedShared;
+			space.broadcast(new Broadcast(this.shared, this.getId()));
+			return true;
+		}
+		return false;
+	}
+
+	
+	@Override
+	public synchronized Shared<?> getShared() {
+		return this.shared;
+	}
+
+	
+	@Override
+	public String getId() {
+		
+		return this.id;
+	}
+
+	
+	@Override
+	public void setId(String id) {
+		System.out.println("Got ID : "+id);
+		this.id=id;
+	}
+	
 	/**
 	 * 
 	 * Register Computer objects to the compute space
@@ -85,52 +123,5 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 		}
 	}
 
-	@Override
-	/**
-	 * @see api.Task Task
-	 */
-	public Result<?> compose(Task<?> t, List<?> list) throws RemoteException {
-		return t.compose(list);
-	}
-
-	/**
-	 * 
-	 */
-	public synchronized void broadcast(Shared<?> proposedShared) throws RemoteException{
-
-		if (proposedShared.isNewerThan(shared)) {
-			shared = proposedShared;
-			System.out.println("Attempting to broadcast : "+this.getId());
-			space.broadcast(new Broadcast(this.shared, this.getId()));
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see system.Computer#getShared()
-	 */
-	@Override
-	public synchronized Shared<?> getShared() {
-		return this.shared;
-	}
-
-	/* (non-Javadoc)
-	 * @see system.Computer#getId()
-	 */
-	@Override
-	public String getId() {
-		
-		return this.id;
-	}
-
-	/* (non-Javadoc)
-	 * @see system.Computer#setId(java.lang.String)
-	 */
-	@Override
-	public void setId(String id) {
-		System.out.println("Got ID : "+id);
-		this.id=id;
-	}
 
 }

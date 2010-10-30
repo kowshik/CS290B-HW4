@@ -37,21 +37,10 @@ public class TspClient {
 	private static int N_PIXELS = 500;
 
 	// Input for the Travelling Salesman Problem
-	/*
-	 * private static double[][] CITIES = { { 1, 1 }, { 8, 1 }, { 8, 8 }, { 1, 8
-	 * }, { 2, 2 }, { 7, 2 }, { 7, 7 }, { 2, 7 }, { 3, 3 }, { 6, 3 }, { 6, 6 },
-	 * { 3, 6 } };
-	 * 
-	 * private static double[][] CITIES = { { 1, 1 }, { 8, 1 }, { 8, 8 }, { 1, 8
-	 * }, { 2, 2 }, { 7, 2 }};
-	 */
-
+	
 	private static double[][] CITIES = { { 1, 1 }, { 8, 1 }, { 8, 8 },
-<<<<<<< HEAD
-			{ 1, 8 },{ 2, 2 }, { 7, 2 }, { 7, 7 }, { 2, 7 }};
-=======
-			{ 1, 8 }, { 2, 2 }, { 7, 2 }, { 7, 7 }};
->>>>>>> 0d19cef8e76d1e3c72b14e58eecf3c1495c6be5d
+			{ 1, 8 }, { 2, 2 }, { 7, 2 }, { 7, 7 }, { 2, 7 }, { 3, 3 },
+			{ 6, 3 }, { 6, 6 }, { 3, 6 } };
 
 	public static void main(String[] args) throws Exception {
 

@@ -6,6 +6,11 @@ package system;
 import java.io.Serializable;
 
 /**
+ * A class abstracting shared objects for the branch-and-bound TSP problem. The
+ * class encapsulates an upper-bound value of type Double generated during
+ * branch-and-bound. The upper-bound is nothing but the length of a feasible
+ * tour of cities.
+ * 
  * @author Manasa Chandrasekhar
  * @author Kowshik Prakasam
  * 
@@ -49,12 +54,5 @@ public class TspShared implements Shared<Double>, Serializable {
 	public Double get() {
 		return this.upperBound;
 	}
-	
-	/*public boolean compare(double lowerBound){
-		if(this.upperBound == INFINITY || lowerBound < this.upperBound)
-			return true;
-		else
-			return false;
-	}*/
 
 }

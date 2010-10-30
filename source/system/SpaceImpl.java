@@ -45,7 +45,7 @@ public class SpaceImpl extends UnicastRemoteObject implements Client2Space,
 	private Map<String, Successor> waitingTasks;
 	private LinkedBlockingQueue<Result<?>> results;
 	private List<ComputerProxy> proxies;
-	private static final int PORT_NUMBER = 2672;
+	private static final int PORT_NUMBER = 3672;
 	private Shared<?> shared;
 
 	/**
@@ -205,10 +205,12 @@ public class SpaceImpl extends UnicastRemoteObject implements Client2Space,
 
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * This method is synchronized because no two computers can broadcast at the
+	 * same time.
 	 * 
-	 * @see system.Computer2Space#receiveBroadcast(system.Broadcast)
+	 * @see system.Computer2Space#broadcast(Broadcast)
+	 *      system.Computer2Space.broadcast(Broadcast)
 	 */
 	@Override
 	public synchronized void broadcast(Broadcast broadcast)
@@ -216,7 +218,6 @@ public class SpaceImpl extends UnicastRemoteObject implements Client2Space,
 		Shared<?> newShared = broadcast.getShared();
 		String computerId = broadcast.getComputerId();
 		if (!shared.isNewerThan(newShared)) {
-			System.out.println("Got new upper bound "+newShared.get()+" from : "+computerId);
 			this.setShared(newShared);
 			for (ComputerProxy cp : proxies) {
 				if (!cp.getId().equals(computerId)) {
@@ -230,7 +231,7 @@ public class SpaceImpl extends UnicastRemoteObject implements Client2Space,
 	 * @param newShared
 	 */
 	public synchronized void setShared(Shared<?> newShared) {
-		this.shared=newShared;
+		this.shared = newShared;
 	}
 
 	public synchronized Shared<?> getShared() {

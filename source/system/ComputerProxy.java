@@ -113,7 +113,6 @@ public class ComputerProxy implements Runnable {
 					Result<?> r = null;
 					switch (aTask.getStatus()) {
 					case DECOMPOSE:
-						System.out.println("Processing DECOMPOSE task :" + aTask.getId());
 						r = compObj.decompose(aTask);
 
 						/*
@@ -147,8 +146,7 @@ public class ComputerProxy implements Runnable {
 								&& (aTask.getId().equals(aTask.getParentId()))) {
 
 							space.putResult(r);
-							logger.info("Elapsed Time="
-									+ (r.getEndTime() - r.getStartTime()));
+							
 						}
 						/*
 						 * If the DECOMPOSE stage has neither returned sub tasks
@@ -161,15 +159,13 @@ public class ComputerProxy implements Runnable {
 							Closure parentClosure = space.getClosure(aTask
 									.getParentId());
 							parentClosure.put(r.getValue());
-							logger.info("Elapsed Time="
-									+ (r.getEndTime() - r.getStartTime()));
+							
 
 						}
 
 						aTask.setStatus(Task.Status.COMPOSE);
 						break;
 					case COMPOSE:
-						System.out.println("Processing COMPOSE task :" + aTask.getId());
 						Closure taskClosure = space.getClosure(aTask.getId());
 						r = compObj.compose(aTask, taskClosure.getValues());
 
@@ -206,8 +202,7 @@ public class ComputerProxy implements Runnable {
 						 * COMPOSE stage as its life is over.
 						 */
 						space.removeSuccessor(aTask.getId());
-						logger.info("Elapsed Time="
-								+ (r.getEndTime() - r.getStartTime()));
+						
 						break;
 					}
 				} catch (InterruptedException e) {
@@ -219,6 +214,9 @@ public class ComputerProxy implements Runnable {
 					System.err.println("Reassigning task to task queue");
 					try {
 						space.put(aTask);
+						for(Task<?> t : tasks){
+							space.put(t);
+						}
 					} catch (RemoteException ex) {
 						System.err
 								.println("Unable to reassign task to task queue");
