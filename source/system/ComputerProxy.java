@@ -113,7 +113,7 @@ public class ComputerProxy implements Runnable {
 					Result<?> r = null;
 					switch (aTask.getStatus()) {
 					case DECOMPOSE:
-						r = compObj.decompose(aTask);
+						r = compObj.execute(aTask);
 
 						/*
 						 * This task has generated child tasks, so a successor
@@ -166,8 +166,7 @@ public class ComputerProxy implements Runnable {
 						aTask.setStatus(Task.Status.COMPOSE);
 						break;
 					case COMPOSE:
-						Closure taskClosure = space.getClosure(aTask.getId());
-						r = compObj.compose(aTask, taskClosure.getValues());
+						r = compObj.execute(aTask);
 
 						/*
 						 * When the parent ID is equal to the task's ID, then it

@@ -150,6 +150,7 @@ public class Successor implements Runnable {
 			}
 			joinCounter--;
 			if (this.joinCounter == 0) {
+				task.putValues(values);
 				setStatus(Status.READY);
 			}
 		}

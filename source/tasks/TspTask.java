@@ -85,6 +85,7 @@ public class TspTask extends TaskBase<List<TspTask.City>> implements
 	private City startCity;
 	private int numberOfChildren;
 	private double lowerBound;
+	private List<List<City>> values;
 
 	// Permisible recursion level beyond which the problem is solved locally
 	private static final int NUMBER_OF_LEVELS = 5;
@@ -207,8 +208,7 @@ public class TspTask extends TaskBase<List<TspTask.City>> implements
 	 * 
 	 * 
 	 */
-	@Override
-	public Result<List<City>> decompose() {
+	private Result<List<City>> decompose() {
 		Result<List<City>> r = new ResultImpl<List<City>>();
 		try {
 			// Get the shared object from the computer
@@ -302,13 +302,11 @@ public class TspTask extends TaskBase<List<TspTask.City>> implements
 	 * Used by the successor of each task to integrate the routes returned by
 	 * all its children and find the least cost route from all of them.
 	 * 
-	 * @see api.Task#compose(List) api.Task.compose(List)
 	 */
-	@Override
-	public Result<List<City>> compose(List<?> list) {
+	private Result<List<City>> compose() {
 
 		/*
-		 * The parameter list may contain null values since a Node can die due
+		 * getValues() may contain null values since a Node can die due
 		 * to pruning. So before type casting to List<List<City>>, we do a null
 		 * check.
 		 * 
@@ -319,9 +317,9 @@ public class TspTask extends TaskBase<List<TspTask.City>> implements
 		 * routes passed. Return this min-distance route in a ResultImpl object.
 		 */
 
+		List<List<City>> minRoutes=this.getValues();
 		Result<List<City>> r = new ResultImpl<List<City>>();
-		if (list != null) {
-			List<List<City>> minRoutes = (List<List<City>>) list;
+		if (minRoutes != null) {
 			List<City> chosenMinRoute = null;
 			double minLength = Double.MAX_VALUE;
 			int level = this.getTaskLevel();
@@ -379,8 +377,6 @@ public class TspTask extends TaskBase<List<TspTask.City>> implements
 	 */
 
 	private List<City> findMinRoute() {
-		double currentRouteLength = findRouteLength(this.currentRoute);
-
 		// Stack for DFS
 		Stack<List<City>> s = new Stack<List<City>>();
 		List<City> firstNewRoute = new Vector<City>();
@@ -461,6 +457,42 @@ public class TspTask extends TaskBase<List<TspTask.City>> implements
 			cities.add(newRoute.get(i));
 		}
 		return cities;
+	}
+
+	/* (non-Javadoc)
+	 * @see api.Task#execute()
+	 */
+	@Override
+	public Result<?> execute() {
+		if(this.getStatus()==Task.Status.DECOMPOSE){
+			return this.decompose();
+		}
+		if(this.getStatus()==Task.Status.COMPOSE){
+			return this.compose();
+		}
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see api.Task#putValues(java.util.List)
+	 */
+	@Override
+	public void putValues(List<?> values) {
+		this.values=new Vector<List<City>>();
+		for(Object o : values){
+			List<City> listOfCities=(List<City>)o;
+			this.values.add(listOfCities);
+		}
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see api.Task#getValues()
+	 */
+	@Override
+	public List<List<TspTask.City>> getValues() {
+		
+		return values;
 	}
 
 }

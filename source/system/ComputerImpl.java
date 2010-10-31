@@ -5,7 +5,6 @@ import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.List;
 
 import api.Result;
 import api.Task;
@@ -37,13 +36,14 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 		this.shared = new TspShared(TspShared.INFINITY);
 	}
 
-	@Override
+	
 	/**
 	 * @see api.Task Task
 	 */
-	public Result<?> decompose(Task<?> t) {
+	@Override
+	public Result<?> execute(Task<?> t) {
 		t.setComputer(this);
-		return t.decompose();
+		return t.execute();
 	}
 
 	@Override
@@ -53,13 +53,7 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 	}
 
 	
-	@Override
-	/**
-	 * @see api.Task Task
-	 */
-	public Result<?> compose(Task<?> t, List<?> list) throws RemoteException {
-		return t.compose(list);
-	}
+	
 
 	@Override
 	public synchronized boolean broadcast(Shared<?> proposedShared) throws RemoteException{
